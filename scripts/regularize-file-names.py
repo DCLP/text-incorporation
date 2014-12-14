@@ -9,6 +9,7 @@ from functools import wraps
 import logging
 import os
 import re
+import shutil
 import sys
 import traceback
 
@@ -33,21 +34,57 @@ def main (args):
     """
     logger = logging.getLogger(sys._getframe().f_code.co_name)
 
-    # test for existence of input directory
 
+    indir = os.path.abspath(args.indir)
+    outdir = os.path.abspath(args.outdir)
+    # test for existence of input directory
+    if not(os.path.isdir(indir)):
+        logger.critical ("normalized input directory path is not an existing directory: %s" % indir)
+        sys.exit(1)
+
+    if not(os.path.isdir(outdir)):
+        logger.critical ("normalized output directory path is not an existing directory: %s" % outdir)
+        sys.exit(1)
+
+    logger.debug("normalized input file directory path is: '%s'" % indir)
+    logger.debug("normalized output file directory path is: '%s'" % outdir)
 
     # get list of files and loop through them
+    infiles = []
+    for (dirpath, dirnames, filenames) in os.walk(indir):
+        infiles.extend(filenames)
+        break
 
+    for fn in infiles:
+
+        logger.debug("handling '%s'" % fn)
 
         # lower-case this name
+        newfn = fn.lower()
+        logger.debug("after conversion to lower case: '%s'" % newfn)
 
-        # regularize whitespace
+        # regularize whitespace and replace with hyphen
+        newfn = re.sub(r'\s+', '-', newfn.strip())
+        logger.debug("after whitespace normalization and hyphen substitution: '%s'" % newfn)
 
-        # replace whitespace with hyphen
+        # replace all punctuation except hyphens and underlines with hyphens (preserve extension)
+        n, ext = os.path.splitext(newfn)
+        words = re.split(r'\W+', n)
+        n = '-'.join(words)
+        newfn = ''.join((n, ext))
+        logger.debug("normalized punctuation: '%s'" % newfn)
+
+        # clean up multiple hyphens
+        newfn = re.sub(r'\-+', '-', newfn)
+        logger.debug("after hyphen normalization: '%s'" % newfn)
 
         # copy the file contents to the newly named file in the output directory
+        src = os.path.join(indir, fn)
+        dst = os.path.join(outdir, newfn)
+        shutil.copyfile(src, dst)
 
         # write change notice to logger
+        logger.info("wrote '%s' to '%s'" % (fn, newfn))
 
 
 if __name__ == "__main__":
