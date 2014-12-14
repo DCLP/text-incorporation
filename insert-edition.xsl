@@ -9,7 +9,6 @@
     <xsl:template match="tei:body/tei:div[@type='edition']">
         <xsl:comment> yahoo!</xsl:comment> 
         <xsl:copy>
-            
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
@@ -18,7 +17,6 @@
    <xsl:template match="tei:body[not(tei:div[@type='edition'])]">
         <xsl:copy>
             <tei:div type="edition"><ab>hi I'm a new baby edition!</ab></tei:div>
-            
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
@@ -29,5 +27,5 @@
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
-    <!--<xsl:template match="@id"/>-->
+
 </xsl:stylesheet>
