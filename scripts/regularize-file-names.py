@@ -33,6 +33,22 @@ def main (args):
     """
     logger = logging.getLogger(sys._getframe().f_code.co_name)
 
+    # test for existence of input directory
+
+
+    # get list of files and loop through them
+
+
+        # lower-case this name
+
+        # regularize whitespace
+
+        # replace whitespace with hyphen
+
+        # copy the file contents to the newly named file in the output directory
+
+        # write change notice to logger
+
 
 if __name__ == "__main__":
     log_level = DEFAULTLOGLEVEL
