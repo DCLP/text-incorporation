@@ -3,7 +3,8 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:t="http://www.tei-c.org/ns/1.0"
-    exclude-result-prefixes="xs"
+    xmlns="http://www.tei-c.org/ns/1.0"
+    exclude-result-prefixes="xs t tei"
     version="1.0">
     
     <xsl:template match="tei:body/tei:div[@type='edition']">
@@ -16,7 +17,7 @@
     
    <xsl:template match="tei:body[not(tei:div[@type='edition'])]">
         <xsl:copy>
-            <tei:div type="edition"><ab>hi I'm a new baby edition!</ab></tei:div>
+            <div type="edition"><ab>hi I'm a new baby edition!</ab></div>
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
