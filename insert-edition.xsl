@@ -5,7 +5,7 @@
     xmlns:t="http://www.tei-c.org/ns/1.0"
     xmlns="http://www.tei-c.org/ns/1.0"
     exclude-result-prefixes="xs t tei"
-    version="1.0">
+    version="2.0">
     
     <xsl:template match="tei:body/tei:div[@type='edition']">
         <xsl:comment> yahoo!</xsl:comment> 
