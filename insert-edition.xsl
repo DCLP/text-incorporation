@@ -8,7 +8,7 @@
     version="2.0">
     
     <xsl:template match="tei:body/tei:div[@type='edition']">
-        <xsl:comment> yahoo!</xsl:comment> 
+        <xsl:message>WARNING: this file already contains an edition div; nothing will be changed.</xsl:message>
         <xsl:copy>
             <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
@@ -17,8 +17,11 @@
     
    <xsl:template match="tei:body[not(tei:div[@type='edition'])]">
         <xsl:copy>
-            <div type="edition"><ab>hi I'm a new baby edition!</ab></div>
-            <xsl:apply-templates select="@*|node()"/>
+            <xsl:apply-templates select="@*"/>
+            <div type="edition">
+                <ab>hi I'm a new baby edition!</ab>
+            </div>
+            <xsl:apply-templates select="node()"/>
         </xsl:copy>
     </xsl:template>
     
