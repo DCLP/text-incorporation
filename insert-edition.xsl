@@ -7,6 +7,7 @@
     exclude-result-prefixes="xs t tei"
     version="2.0">
     
+    <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
     <xsl:param name="input-directory">.</xsl:param>
     <xsl:param name="who">Ghost in the Machine</xsl:param>
     
