@@ -7,6 +7,8 @@
     exclude-result-prefixes="xs t tei"
     version="2.0">
     
+    <xsl:param name="input-directory"></xsl:param>
+    
     <!-- capture the document element in order to:
         * test in advance for conditions relevant to processing
         * handle stylesheet behaviors accordingly -->
@@ -14,19 +16,45 @@
         <xsl:copy>
             <xsl:apply-templates select="@*"/>
             <xsl:choose>
+                
                 <xsl:when test="//tei:body/tei:div[@type='edition']">
                     <xsl:message>WARNING: this file already contains an edition div; nothing will be changed.</xsl:message>
                     <xsl:apply-templates select="node()" mode="abort"/>
                 </xsl:when>
+                
                 <xsl:when test="//tei:body[not(tei:div[@type='edition'])]">
-                    <!-- TODO: test for existence of file to insert and load it into a tunnel parameter -->
-                    <xsl:message>INFO: adding edition div</xsl:message>
-                    <xsl:apply-templates select="node()"/>
+                    <xsl:variable name="tm-number" select="//tei:publicationStmt/tei:idno[@type='TM'][1]"/>
+                    <xsl:variable name="query">
+                        <xsl:value-of select="$input-directory"/>
+                        <xsl:text>/?select=</xsl:text>
+                        <xsl:value-of select="$tm-number"/>
+                        <xsl:text>_*.xml</xsl:text>
+                    </xsl:variable>
+                    <xsl:variable name="source-files" select="collection($query)"/>
+                    <xsl:variable name="file-count" select="count($source-files)"/>
+                    <xsl:choose>
+                        <xsl:when test="$file-count=0">
+                            <xsl:message>WARNING: no edition source file found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
+                            <xsl:apply-templates select="node()" mode="abort"/>
+                        </xsl:when>
+                        <xsl:when test="$file-count &gt; 1">
+                            <xsl:message>WARNING: multiple edition source files found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
+                            <xsl:apply-templates select="node()" mode="abort"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:message>INFO: adding edition div</xsl:message>
+                            <xsl:apply-templates select="node()">
+                                <xsl:with-param name="source-file" tunnel="yes" select="$source-files[1]"/>
+                            </xsl:apply-templates>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
+                
                 <xsl:otherwise>
                     <xsl:message>WARNING: failed to find expected XML file containing text; nothing will be changed.</xsl:message>
                     <xsl:apply-templates select="node()" mode="abort"/>
                 </xsl:otherwise>
+                
             </xsl:choose>
         </xsl:copy>
     </xsl:template>
