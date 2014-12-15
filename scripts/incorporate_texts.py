@@ -17,6 +17,9 @@ import traceback
 
 DEFAULTLOGLEVEL = logging.WARNING
 
+XSLT_FILE_NAME = 'insert-edition.xsl'
+
+
 def arglogger(func):
     """
     decorator to log argument calls to functions
@@ -63,6 +66,15 @@ def main (args):
     if not(os.path.isdir(outputdir)):
         raise IOError("'%s' is not a directory" % outputdir)
 
+    # make sure we know where to get the stylesheet
+    script_path = os.path.realpath(__file__)
+    logger.debug("script path is '%s'" % script_path)
+    script_dir, script_name = os.path.split(script_path)
+    logger.debug("script dir is '%s'" % script_dir)
+    xslt_file_path = os.path.abspath(os.path.join(script_dir, '..', XSLT_FILE_NAME))    
+    if not(os.path.isfile(xslt_file_path)):
+        raise IOError("cannot find XSLT file at '%s'" % xslt_file_path)
+
     # iterate through list of candidate TM numbers
     manifest = open(args.candidates, 'r')
     candidates = [c.strip() for c in manifest]
@@ -80,10 +92,12 @@ def main (args):
         elif not(os.path.isfile(editionf)):
             logger.error("failed to find edition file at '%s'" % editionf)
         else:
+            outf = os.path.abspath(os.path.join(outputdir, "%s.xml" % candidate))
+            logger.debug("outf: '%s'" % outf)            
             if os.name == 'posix':
-            #    cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
-            #    logger.debug(' '.join(cmd))
-            #    subprocess.call(' '.join(cmd), shell=True)     
+                cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % outf, '-s:%s' % metaf, 'who="%s"' % args.who, 'editionf="%s"' % editionf]
+                logger.debug(' '.join(cmd))
+                subprocess.call(' '.join(cmd), shell=True)     
                 logger.debug("w00t!")  
             else:
                 # handle it on pc
@@ -105,6 +119,7 @@ if __name__ == "__main__":
         parser.add_argument ("-m", "--metadir", required=True, help="path to directory containing metadata XML files")
         parser.add_argument ("-e", "--editiondir", required=True, help="path to directory containing edition division files")
         parser.add_argument ("-o", "--outputdir", required=True, help="path to directory in which to output results")
+        parser.add_argument ("-w", "--who", required=True, help="Name of person to be credited in the revision description for running this script")
         # example positional argument:
         # parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
         args = parser.parse_args()
