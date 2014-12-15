@@ -7,7 +7,8 @@
     exclude-result-prefixes="xs t tei"
     version="2.0">
     
-    <xsl:param name="input-directory"></xsl:param>
+    <xsl:param name="input-directory">.</xsl:param>
+    <xsl:param name="who">Ghost in the Machine</xsl:param>
     
     <!-- capture the document element in order to:
         * test in advance for conditions relevant to processing
@@ -69,6 +70,37 @@
         </xsl:copy>
     </xsl:template>
     
+    <xsl:template match="tei:revisionDesc">
+        <xsl:param name="source-file" tunnel="yes"/>
+        <xsl:copy>
+            <xsl:apply-templates select="@*"/>
+            <xsl:text>
+        </xsl:text>
+            <change when="{current-dateTime()}" who="{$who}">Programmatically incorporated edition div and associated revision description into document</change>
+            <xsl:for-each select="$source-file//tei:revisionDesc/* | *">
+                <xsl:sort select="xs:date(@when)" order="descending" />
+                <xsl:text> 
+        </xsl:text>
+                <xsl:apply-templates select="."/>
+            </xsl:for-each>
+            <xsl:text>
+      </xsl:text>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="text()[parent::tei:change]">
+        <xsl:value-of select="normalize-space()"/>
+        <xsl:if test="contains(normalize-space(), 'Crosswalked to EpiDoc XML')">
+            <xsl:choose>
+                <xsl:when test="./ancestor::tei:TEI/descendant::tei:div[@type='edition']">
+                    <xsl:text> (edition div)</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text> (metadata)</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:if>
+    </xsl:template>    
     
     <xsl:template match="@*|node()">
         <xsl:copy>
