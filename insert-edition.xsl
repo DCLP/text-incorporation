@@ -61,11 +61,10 @@
     
 
     <xsl:template match="tei:body[not(tei:div[@type='edition'])]">
+        <xsl:param name="source-file" tunnel="yes"/>
         <xsl:copy>
             <xsl:apply-templates select="@*"/>
-            <div type="edition">
-                <ab>hi I'm a new baby edition!</ab>
-            </div>
+            <xsl:apply-templates select="$source-file//tei:div[@type='edition']"/>
             <xsl:apply-templates select="node()"/>
         </xsl:copy>
     </xsl:template>
