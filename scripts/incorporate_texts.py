@@ -80,7 +80,7 @@ def main (args):
     candidates = [c.strip() for c in manifest]
     manifest.close()
     for candidate in candidates:
-        logger.debug("candidate: '%s'" % candidate)
+        logger.info("candidate: '%s'" % candidate)
 
         # determine paths to related files
         metaf = os.path.abspath(os.path.join(args.metadir, str(int(candidate[0:2])+1), "%s.xml" % candidate))
