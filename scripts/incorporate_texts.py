@@ -92,13 +92,13 @@ def main (args):
         elif not(os.path.isfile(editionf)):
             logger.error("failed to find edition file at '%s'" % editionf)
         else:
+            editiondir, editionname = os.path.split(editionf)
             outf = os.path.abspath(os.path.join(outputdir, "%s.xml" % candidate))
             logger.debug("outf: '%s'" % outf)            
             if os.name == 'posix':
-                cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % outf, '-s:%s' % metaf, 'who="%s"' % args.who, 'editionf="%s"' % editionf]
+                cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % outf, '-s:%s' % metaf, 'who="%s"' % args.who, 'input-directory="%s"' % editiondir]
                 logger.debug(' '.join(cmd))
                 subprocess.call(' '.join(cmd), shell=True)     
-                logger.debug("w00t!")  
             else:
                 # handle it on pc
                 logger.critical("this script does not have support for Windows!")

@@ -30,7 +30,7 @@
                         <xsl:value-of select="$input-directory"/>
                         <xsl:text>/?select=</xsl:text>
                         <xsl:value-of select="$tm-number"/>
-                        <xsl:text>_*.xml</xsl:text>
+                        <xsl:text>.xml</xsl:text>
                     </xsl:variable>
                     <xsl:variable name="source-files" select="collection($query)"/>
                     <xsl:variable name="file-count" select="count($source-files)"/>
