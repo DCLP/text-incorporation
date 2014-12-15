@@ -58,6 +58,11 @@ def main (args):
         logger.info("using default logging level: %s" % log_level_name)
     logger.debug("command line: '%s'" % ' '.join(sys.argv))
 
+    # make sure output directory is valid
+    outputdir = os.path.abspath(args.outputdir)
+    if not(os.path.isdir(outputdir)):
+        raise IOError("'%s' is not a directory" % outputdir)
+
     # iterate through list of candidate TM numbers
     manifest = open(args.candidates, 'r')
     candidates = [c.strip() for c in manifest]
@@ -99,6 +104,7 @@ if __name__ == "__main__":
         parser.add_argument ("-c", "--candidates", required=True, help="path to text file containing a list of TM numbers to try to operate on")
         parser.add_argument ("-m", "--metadir", required=True, help="path to directory containing metadata XML files")
         parser.add_argument ("-e", "--editiondir", required=True, help="path to directory containing edition division files")
+        parser.add_argument ("-o", "--outputdir", required=True, help="path to directory in which to output results")
         # example positional argument:
         # parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
         args = parser.parse_args()
