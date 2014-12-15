@@ -65,6 +65,10 @@ def main (args):
     for candidate in candidates:
         logger.debug("candidate: '%s'" % candidate)
 
+        # determine paths to related files
+        metaf = os.path.join((args.metadir, str(int(candidate[0:1]+1)), "%s.xml" % candidate))
+        editionf = os.path.join((args.editiondir, "%s.xml" % candidate))
+
         if os.name == 'posix':
         #    cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
         #    logger.debug(' '.join(cmd))
