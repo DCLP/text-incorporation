@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-test xslt regression for the dclp project
+run a series of EpiDoc edition div incorporation transforms
 """
 
 import argparse
@@ -29,34 +29,15 @@ def arglogger(func):
     return inner    
 
 
-@arglogger
-def hash_file(filename):
-   """"This function returns the SHA-1 hash
-   of the file passed into it"""
 
-   # code from http://www.programiz.com/python-programming/examples/hash-file
-
-   # make a hash object
-   h = hashlib.sha1()
-
-   # open file for reading in binary mode
-   with open(filename,'rb') as file:
-
-       # loop till the end of the file
-       chunk = 0
-       while chunk != b'':
-           # read only 1024 bytes at a time
-           chunk = file.read(1024)
-           h.update(chunk)
-
-   # return the hex representation of digest
-   return h.hexdigest()
 
 @arglogger
 def main (args):
     """
     main functions
     """
+
+    # set up logging
     logger = logging.getLogger()
     log_level = DEFAULTLOGLEVEL
     if args.loglevel is not None:
@@ -77,87 +58,21 @@ def main (args):
         logger.info("using default logging level: %s" % log_level_name)
     logger.debug("command line: '%s'" % ' '.join(sys.argv))
 
-    script_path = os.path.realpath(__file__)
-    logger.debug("script path is '%s'" % script_path)
-
-    script_dir, script_name = os.path.split(script_path)
-    logger.debug("script dir is '%s'" % script_dir)
-
-    project_dir = os.path.abspath(os.path.join(script_dir, '..', '..'))
-    logger.debug("project dir is '%s'" % project_dir)
-
-    data_path = os.path.join(project_dir, 'idp.data')
-    if not os.path.isdir(data_path):
-        emsg = "%s is not a directory" % data_path
-        logger.fatal(emsg)
-        raise IOError(emsg)        
-    logger.debug("data path is '%s'" % data_path)
-
-    navigator_path = os.path.join(project_dir, 'navigator')
-    if not os.path.isdir(navigator_path):
-        emsg = "%s is not a directory" % navigator_path
-        logger.fatal(emsg)
-        raise IOError(emsg)        
-    logger.debug("navigator path is '%s'" % navigator_path)
-
-    xslt_file_path = os.path.join(navigator_path, 'pn-xslt', 'MakeHTML.xsl')
-    if not os.path.isfile(xslt_file_path):
-        emsg = "%s is not a file" % xslt_file_path
-        logger.fatal(emsg)
-        raise IOError(emsg)        
-    logger.debug("xslt file path is '%s'" % xslt_file_path)
-
-    output_path = os.path.join(script_dir, 'output')
-    if not os.path.isdir(output_path):
-        os.makedirs(output_path)
-        logger.info("created test output directory at '%s'" % output_path)
-    else:
-        logger.debug("output path is '%s'" % output_path)
-
-    candidate_file_path = os.path.join(script_dir, 'data', 'regression_candidates.csv')
-    logger.debug("candidate file path is '%s'" % candidate_file_path)
-
-    candidates = csv.DictReader(open(candidate_file_path, 'rb'))
+    # iterate through list of candidate TM numbers
+    manifest = open(args.candidates, 'r')
+    candidates = [c.strip() for c in manifest]
+    manifest.close()
     for candidate in candidates:
-        candidate_collection = candidate['collection_id']
-        candidate_relative_file_path = os.path.normpath(candidate['idpdata_relative_path'])
-        candidate_file_path = os.path.join(data_path, candidate_relative_file_path)
-        if not os.path.isfile(candidate_file_path):
-            emsg = "%s is not a file" % candidate_file_path
-            logger.fatal(emsg)
-            raise IOError(emsg)
-        logger.debug("candidate file path is '%s'" % candidate_file_path)
-        candidate_relative_path, candidate_filename = os.path.split(candidate_relative_file_path)
-        logger.debug("candidate_filename is '%s'" % candidate_filename)
-        candidate_filename, candidate_extension = os.path.splitext(candidate_filename)
-        logger.debug("candidate filename is '%s'" % candidate_filename)
-        logger.debug("candidate filename extension is '%s'" % candidate_extension)
-        output_file_path = os.path.join(output_path, candidate_collection.lower(), candidate_filename+'.html')
-        sha_file_path = os.path.join(output_path, candidate_collection.lower(), candidate_filename+'.sha')
+        logger.debug("candidate: '%s'" % candidate)
+
         if os.name == 'posix':
-            cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
-            logger.debug(' '.join(cmd))
-            subprocess.call(' '.join(cmd), shell=True)       
+        #    cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
+        #    logger.debug(' '.join(cmd))
+        #    subprocess.call(' '.join(cmd), shell=True)       
+            pass
         else:
             # handle it on pc
             pass
-
-        sha_file = open(sha_file_path, 'r')
-        prev_sha = sha_file.read()
-        sha_file.close()
-        logger.debug("previous sha is '%s'" % prev_sha)
-
-        prev_sha_file_path = sha_file_path+'.prev'
-        os.rename(sha_file_path, prev_sha_file_path)
-
-        output_sha = hash_file(output_file_path)
-        sha_file = open(sha_file_path, 'w')
-        sha_file.write(output_sha)
-        sha_file.close()
-        logger.debug("output sha is '%s'" % output_sha)
-
-        if prev_sha != output_sha:
-            logger.critical("probable regression bug detected: checksum of newly-created file %s does not match checksum from previous run" % output_file_path)
 
 
 if __name__ == "__main__":
@@ -170,6 +85,9 @@ if __name__ == "__main__":
         parser.add_argument ("-l", "--loglevel", type=str, help="desired logging level (case-insensitive string: DEBUG, INFO, WARNING, ERROR" )
         parser.add_argument ("-v", "--verbose", action="store_true", default=False, help="verbose output (logging level == INFO")
         parser.add_argument ("-vv", "--veryverbose", action="store_true", default=False, help="very verbose output (logging level == DEBUG")
+        parser.add_argument ("-c", "--candidates", required=True, help="path to text file containing a list of TM numbers to try to operate on")
+        parser.add_argument ("-m", "--metadir", required=True, help="path to directory containing metadata XML files")
+        parser.add_argument ("-e", "--editiondir", required=True, help="path to directory containing edition division files")
         # example positional argument:
         # parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
         args = parser.parse_args()
