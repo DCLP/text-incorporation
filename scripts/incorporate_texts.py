@@ -66,17 +66,24 @@ def main (args):
         logger.debug("candidate: '%s'" % candidate)
 
         # determine paths to related files
-        metaf = os.path.join((args.metadir, str(int(candidate[0:1]+1)), "%s.xml" % candidate))
-        editionf = os.path.join((args.editiondir, "%s.xml" % candidate))
-
-        if os.name == 'posix':
-        #    cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
-        #    logger.debug(' '.join(cmd))
-        #    subprocess.call(' '.join(cmd), shell=True)       
-            pass
+        metaf = os.path.abspath(os.path.join(args.metadir, str(int(candidate[0:2])+1), "%s.xml" % candidate))
+        editionf = os.path.abspath(os.path.join(args.editiondir, "%s.xml" % candidate))
+        logger.debug("metaf: '%s'" % metaf)
+        logger.debug("editionf: '%s'" % editionf)
+        if not(os.path.isfile(metaf)):
+            logger.error("failed to find metadata file at '%s'" % metaf)
+        elif not(os.path.isfile(editionf)):
+            logger.error("failed to find edition file at '%s'" % editionf)
         else:
-            # handle it on pc
-            pass
+            if os.name == 'posix':
+            #    cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % output_file_path, '-s:%s' % candidate_file_path, 'collection="%s"' % candidate_collection, 'analytics="no"', 'cssbase="/css"', 'jsbase="/js"' ]
+            #    logger.debug(' '.join(cmd))
+            #    subprocess.call(' '.join(cmd), shell=True)     
+                logger.debug("w00t!")  
+            else:
+                # handle it on pc
+                logger.critical("this script does not have support for Windows!")
+                os.exit(1)
 
 
 if __name__ == "__main__":
