@@ -21,26 +21,26 @@
             <xsl:choose>
                 
                 <xsl:when test="//tei:body/tei:div[@type='edition']">
-                    <xsl:message>INFO: this file already contains an edition div!</xsl:message>
+                    <xsl:message>    WARNING: this metadata file already contains an edition div!</xsl:message>
                     <xsl:choose>
                         <xsl:when test="$overwrite='yes'">
-                            <xsl:message>INFO: the "overwrite" parameter is set to "yes", so the existing edition div will be replaced with the new one from the corresponding input file.</xsl:message>
+                            <xsl:message>        INFO: the "overwrite" parameter is set to "yes", so the existing edition div will be replaced with the new one from the corresponding input file.</xsl:message>
                             <xsl:call-template name="insert-edition"/>
                         </xsl:when>
                         <xsl:when test="$overwrite='no'">
-                            <xsl:message>INFO: the "overwrite" parameter is set to "no", so the edition div will not be replaced.</xsl:message>
+                            <xsl:message>        INFO: the "overwrite" parameter is set to "no", so the edition div will not be replaced.</xsl:message>
                             <xsl:apply-templates select="node()" mode="abort"/>
                         </xsl:when>
                     </xsl:choose>
                 </xsl:when>
                 
                 <xsl:when test="//tei:body[not(tei:div[@type='edition'])]">
-                    <xsl:message>INFO: no edition div was found, so the external edition div will be brought in.</xsl:message>
+                    <xsl:message>    INFO: no edition div was found in the metadata file, so the external edition div will be brought in.</xsl:message>
                     <xsl:call-template name="insert-edition"/>
                 </xsl:when>
                 
                 <xsl:otherwise>
-                    <xsl:message>WARNING: unexpected structure in file. Nothing will be changed.</xsl:message>
+                    <xsl:message>    WARNING: unexpected structure in metadata file. Nothing will be changed.</xsl:message>
                     <xsl:apply-templates select="node()" mode="abort"/>
                 </xsl:otherwise>
                 
@@ -50,6 +50,7 @@
     
     <xsl:template name="insert-edition">
         <xsl:variable name="tm-number" select="//tei:publicationStmt/tei:idno[@type='TM'][1]"/>
+        <xsl:message>    TM (XSL): <xsl:value-of select="$tm-number"/></xsl:message>
         <xsl:variable name="query">
             <xsl:value-of select="$input-directory"/>
             <xsl:text>/?select=</xsl:text>
@@ -60,15 +61,15 @@
         <xsl:variable name="file-count" select="count($source-files)"/>
         <xsl:choose>
             <xsl:when test="$file-count=0">
-                <xsl:message>WARNING: no edition source file found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
+                <xsl:message>    WARNING: no edition source file found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
                 <xsl:apply-templates select="node()" mode="abort"/>
             </xsl:when>
             <xsl:when test="$file-count &gt; 1">
-                <xsl:message>WARNING: multiple edition source files found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
+                <xsl:message>    WARNING: multiple edition source files found for TM number <xsl:value-of select="$tm-number"/>. Nothing will be changed.</xsl:message>
                 <xsl:apply-templates select="node()" mode="abort"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:message>INFO: adding edition div from external file</xsl:message>
+                <xsl:message>    INFO: edition source file found; adding edition div for TM number <xsl:value-of select="$tm-number"/>.</xsl:message>
                 <xsl:apply-templates select="node()">
                     <xsl:with-param name="source-file" tunnel="yes" select="$source-files[1]"/>
                 </xsl:apply-templates>
@@ -93,7 +94,9 @@
         </xsl:text>
             <change when="{current-dateTime()}" who="{$who}">Programmatically incorporated edition div and associated revision description into document</change>
             <xsl:for-each select="$source-file//tei:revisionDesc/* | *">
-                <xsl:sort select="xs:date(@when)" order="descending" />
+                <xsl:sort select="count(@when)" order="descending" data-type="number" />
+                <xsl:sort select="xs:date(if(contains(@when, 'T')) then substring-before(@when, 'T') else @when)" order="descending" />
+                <xsl:sort select="xs:time(if(contains(@when, 'T')) then substring-after(@when, 'T') else '00:00:01')" order="descending"/>
                 <xsl:text> 
         </xsl:text>
                 <xsl:apply-templates select="."/>
