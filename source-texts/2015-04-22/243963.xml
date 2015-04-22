@@ -1,6 +1,6 @@
 <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="m59467">
 <?oxygen RNGSchema="http://www.stoa.org/epidoc/schema/latest/tei-epidoc.rng" type="xml"?>
-    <<teiHeader>
+    <teiHeader>
         <fileDesc>
             <publicationStmt>
                 <idno type="TM">243963</idno>
