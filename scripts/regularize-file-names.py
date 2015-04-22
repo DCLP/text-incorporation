@@ -83,6 +83,9 @@ def main (args):
         newfn = ''.join((newfn.split('_')[0], ext))
         logger.debug("after filename truncation: '%s'" % newfn)
 
+        # deal with cases of "-teinsdraussen-corresp-.xml"
+        newfn = re.sub('-teinsdraussen-corresp-\.xml', '', newfn)
+
         # copy the file contents to the newly named file in the output directory
         src = os.path.join(indir, fn)
         dst = os.path.join(outdir, newfn)
