@@ -81,6 +81,7 @@ def main (args):
     manifest.close()
     for candidate in candidates:
         logger.info("candidate: '%s'" % candidate)
+        print ("TM: {0}".format(candidate))
 
         # determine paths to related files
         metaf = os.path.abspath(os.path.join(args.metadir, str(int(candidate[0:2])+1), "%s.xml" % candidate))
@@ -96,7 +97,7 @@ def main (args):
             outf = os.path.abspath(os.path.join(outputdir, "%s.xml" % candidate))
             logger.debug("outf: '%s'" % outf)            
             if os.name == 'posix':
-                cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % outf, '-s:%s' % metaf, 'who="%s"' % args.who, 'input-directory="%s"' % editiondir, 'overwrite="%s"' % 'yes' if args.overwrite==True else 'no']
+                cmd = ['saxon', '-xsl:%s' % xslt_file_path, '-o:%s' % outf, '-s:%s' % metaf, 'who="%s"' % args.who, 'input-directory="%s"' % editiondir, 'overwrite="yes"'if args.overwrite==True else 'overwrite="no"']
                 logger.debug(' '.join(cmd))
                 subprocess.call(' '.join(cmd), shell=True)     
             else:
@@ -120,7 +121,7 @@ if __name__ == "__main__":
         parser.add_argument ("-e", "--editiondir", required=True, help="path to directory containing edition division files")
         parser.add_argument ("-o", "--outputdir", required=True, help="path to directory in which to output results")
         parser.add_argument ("-w", "--who", required=True, help="Name of person to be credited in the revision description for running this script")
-        parser.add_argument ("-x", "--overwrite", action="store_true", default=False, help="overwrite existing edition divs")
+        parser.add_argument ("-x", "--overwrite", action="store_true", default=True, help="overwrite existing edition divs")
         # example positional argument:
         # parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
         args = parser.parse_args()
