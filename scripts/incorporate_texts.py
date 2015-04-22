@@ -84,7 +84,7 @@ def main (args):
         print ("TM: {0}".format(candidate))
 
         # determine paths to related files
-        metaf = os.path.abspath(os.path.join(args.metadir, str(int(candidate[0:2])+1), "%s.xml" % candidate))
+        metaf = os.path.abspath(os.path.join(args.metadir, str(int(candidate[0:-3])+1), "%s.xml" % candidate))
         editionf = os.path.abspath(os.path.join(args.editiondir, "%s.xml" % candidate))
         logger.debug("metaf: '%s'" % metaf)
         logger.debug("editionf: '%s'" % editionf)
